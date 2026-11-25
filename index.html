@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>MJE ENTERPRISE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c0c0d">
+<style>
+:root{--bg:#0c0c0d;--card:#18181a;--card2:#222226;--tx:#fff;--mu:#a0a0a8;--or:#ff6a00;--ln:#2c2c31;color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#app{max-width:520px;margin:0 auto;padding:0 14px 90px}
+header{position:sticky;top:0;z-index:5;background:var(--bg);padding:12px 0 8px;display:flex;align-items:center;gap:10px}
+.logo{font-weight:900;letter-spacing:1px;font-size:19px;flex:1}.logo b{color:var(--or)}.logo small{display:block;font-size:9px;color:var(--mu);letter-spacing:2px;font-weight:500}
+.ib{background:var(--card);border:1px solid var(--ln);color:var(--tx);border-radius:12px;padding:8px 12px;font-size:14px;position:relative}
+.badge{position:absolute;top:-6px;right:-6px;background:var(--or);border-radius:10px;font-size:11px;padding:1px 6px;font-weight:700}
+input,textarea,select{width:100%;background:var(--card);border:1px solid var(--ln);color:var(--tx);border-radius:12px;padding:12px;font-size:15px;margin:4px 0}
+.hero{background:linear-gradient(135deg,#ff6a00,#b53d00 60%,#1a1a1a);border-radius:20px;padding:24px 18px;margin:8px 0 16px;animation:up .5s}
+.hero h1{margin:0 0 6px;font-size:26px}.hero p{margin:0 0 14px;opacity:.9}
+.btn{background:var(--or);color:#fff;border:0;border-radius:12px;padding:12px 16px;font-weight:700;font-size:14px}
+.btn.g{background:var(--card2);border:1px solid var(--ln)}.btn.r{background:#7a1c1c}.btn.s{padding:8px 10px;font-size:12px}.btn:disabled{opacity:.4}
+h2{font-size:17px;margin:20px 0 10px}h2 span{color:var(--or)}
+.cats{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px}.chip{flex:none;background:var(--card);border:1px solid var(--ln);color:var(--tx);border-radius:20px;padding:9px 14px;font-size:13px}.chip.on{background:var(--or);border-color:var(--or)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.row{display:flex;gap:10px;overflow-x:auto}.row .pc{flex:none;width:165px}
+.pc{background:var(--card);border:1px solid var(--ln);border-radius:16px;overflow:hidden;animation:up .4s;position:relative}
+.pc img,.ph{width:100%;aspect-ratio:1;object-fit:cover;background:#26262b;display:flex;align-items:center;justify-content:center;font-size:28px}
+.pb{padding:10px}.pn{font-size:13px;font-weight:600;height:34px;overflow:hidden}.pr{color:var(--or);font-weight:800}.wp{font-size:11px;color:var(--mu)}
+.hb{position:absolute;top:6px;right:6px;background:#000a;border:0;color:#fff;border-radius:50%;width:32px;height:32px;font-size:16px}
+.tag{font-size:10px;color:#ff8a3d}.out{color:#e55}
+nav{position:fixed;bottom:0;left:0;right:0;background:#111113;border-top:1px solid var(--ln);display:flex;padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px));z-index:6}
+nav button{flex:1;background:none;border:0;color:var(--mu);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:2px}nav button i{font-style:normal;font-size:20px}nav button.on{color:var(--or)}
+.box{background:var(--card);border:1px solid var(--ln);border-radius:14px;padding:12px;margin:8px 0}
+.sp{display:flex;justify-content:space-between;align-items:center;gap:8px}.mu{color:var(--mu);font-size:13px}
+.st{font-size:11px;padding:3px 8px;border-radius:8px;background:var(--card2);color:var(--or);font-weight:700}
+.big{width:100%;aspect-ratio:1;object-fit:cover;border-radius:18px;background:#26262b}
+.q{display:flex;align-items:center;gap:12px}.q button{width:36px;height:36px;border-radius:10px;border:1px solid var(--ln);background:var(--card2);color:#fff;font-size:18px}
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--or);padding:10px 18px;border-radius:20px;opacity:0;transition:.3s;z-index:9;font-size:14px;pointer-events:none}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+</style></head><body><div id="app"></div><div id="toast"></div>
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import{getAuth,GoogleAuthProvider,signInWithPopup,signOut,onAuthStateChanged}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import{getFirestore,collection,doc,setDoc,updateDoc,deleteDoc,addDoc,onSnapshot,query,where,getDoc,increment}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const app=initializeApp({apiKey:"AIzaSyDw4th024QlKUJnwLm-F5SVDGzclUKUUos",authDomain:"mje-enterprise-ed83f.firebaseapp.com",projectId:"mje-enterprise-ed83f",storageBucket:"mje-enterprise-ed83f.firebasestorage.app",messagingSenderId:"646247177505",appId:"1:646247177505:web:87b7988b5e070dd540b260"});
+const auth=getAuth(app),db=getFirestore(app);
+const DEF=["LED Lights","Fog Lamps","Indicators","Bike Mirrors","Bike Horns","Number Plate Frames","Bike Accessories","Other Accessories"];
+const S={tab:"home",v:null,cat:"All",q:"",cats:[],prods:[],orders:[],ro:[],cart:{},wish:[],prof:{name:"",phone:"",addrs:[]},user:null,admin:false,ownerSet:true,upi:"",asub:"orders",at:"orders",qty:1,edit:null,img:""};
+const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const ls={g(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},s(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+S.cart=ls.g("mje_cart",{});S.wish=ls.g("mje_wish",[]);S.prof=ls.g("mje_prof",S.prof);
+const money=n=>"₹"+Number(n||0).toLocaleString("en-IN");
+const toast=t=>{const e=$("#toast");e.textContent=t;e.style.opacity=1;setTimeout(()=>e.style.opacity=0,2200)};
+const cats=()=>S.cats.length?S.cats:DEF.map(n=>({id:null,name:n}));
+const P=id=>S.prods.find(p=>p.id===id),avail=p=>!p.out&&Number(p.stock)>0;
+const G=(f)=>window[f.name]=f;
+// ---- data
+onSnapshot(collection(db,"prods"),s=>{S.prods=s.docs.map(d=>({id:d.id,...d.data()}));draw()});
+onSnapshot(collection(db,"cats"),s=>{S.cats=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(a.t||0)-(b.t||0));draw()});
+let unsub=[];
+function listen(){unsub.forEach(f=>f());unsub=[];S.orders=[];S.ro=[];S.admin=false;const u=S.user;
+ unsub.push(onSnapshot(doc(db,"config","owner"),s=>{S.ownerSet=s.exists();S.admin=!!(u&&s.exists()&&s.data().uid===u.uid);draw();
+  if(S.admin&&!S._ao){S._ao=1;unsub.push(onSnapshot(collection(db,"orders"),q=>{S.ro=q.docs.map(d=>({id:d.id,...d.data()}));draw()}))}}));
+ unsub.push(onSnapshot(doc(db,"config","settings"),s=>{S.upi=(s.data()||{}).upi||"";draw()}));
+ if(u)unsub.push(onSnapshot(query(collection(db,"orders"),where("uid","==",u.uid)),q=>{S.orders=q.docs.map(d=>({id:d.id,...d.data()}));draw()}))}
+onAuthStateChanged(auth,u=>{S.user=u;S._ao=0;listen();draw()});
+async function login(){try{await signInWithPopup(auth,new GoogleAuthProvider())}catch(e){toast("Login cancelled")}}
+async function logout(){await signOut(auth)}
+// ---- ui
+function card(p){const w=S.wish.includes(p.id);return `<div class="pc"><button class="hb" onclick="wish('${p.id}')">${w?"❤️":"🤍"}</button><div onclick="openP('${p.id}')">${p.img?`<img src="${p.img}" loading="lazy">`:`<div class="ph">🏍️</div>`}<div class="pb"><div class="pn">${esc(p.name)}</div><div class="pr">${money(p.price)}</div><div class="wp">Wholesale ${money(p.wholesale)}</div>${avail(p)?`<div class="tag">${Number(p.stock)} in stock</div>`:`<div class="tag out">Out of stock</div>`}</div></div><div class="pb" style="padding-top:0"><button class="btn s" style="width:100%" ${avail(p)?"":"disabled"} onclick="add('${p.id}',1)">Add to Cart</button></div></div>`}
+const empty=t=>`<div class="box mu" style="text-align:center;padding:26px">${t}</div>`;
+const sec=(t,l)=>l.length?`<h2>${t}</h2><div class="row">${l.map(card).join("")}</div>`:"";
+G(function wish(id){S.wish=S.wish.includes(id)?S.wish.filter(x=>x!==id):[...S.wish,id];ls.s("mje_wish",S.wish);draw()});
+G(function add(id,n){const p=P(id);if(!p||!avail(p))return;S.cart[id]=Math.min((S.cart[id]||0)+n,Number(p.stock));ls.s("mje_cart",S.cart);toast("Added to cart");draw()});
+G(function openP(id){S.v={t:"p",id};S.qty=1;draw();scrollTo(0,0)});
+G(function go(t){S.tab=t;S.v=null;draw();scrollTo(0,0)});
+G(function setCat(c){S.cat=c;S.tab="shop";S.v=null;draw()});
+function home(){const a=S.prods.filter(avail),by=[...a].filter(p=>p.sold).sort((x,y)=>y.sold-x.sold),nw=[...a].sort((x,y)=>(y.t||0)-(x.t||0)).slice(0,8),ft=a.filter(p=>p.featured),off=a.filter(p=>Number(p.wholesale)&&Number(p.wholesale)<Number(p.price));
+ return `<div class="hero"><h1>Shop Your Ride</h1><p>Premium bike &amp; motorcycle accessories at wholesale prices.</p><button class="btn g" onclick="go('shop')">Shop Now →</button></div><h2>Shop <span>Categories</span></h2><div class="cats">${cats().map(c=>`<button class="chip" data-c="${esc(c.name)}" onclick="setCat(this.dataset.c)">${esc(c.name)}</button>`).join("")}</div>
+ ${S.prods.length?sec("Best <span>Sellers</span>",by)+sec("New <span>Arrivals</span>",nw)+sec("Featured <span>Products</span>",ft)+sec("Special <span>Wholesale Offers</span>",off):empty("Products will appear here once the owner adds them.")}`}
+function shop(){const l=S.prods.filter(p=>(S.cat==="All"||p.cat===S.cat)&&p.name.toLowerCase().includes(S.q.toLowerCase()));
+ return `<div class="cats">${["All",...cats().map(c=>c.name)].map(n=>`<button class="chip ${S.cat===n?"on":""}" data-c="${esc(n)}" onclick="S.cat=this.dataset.c;draw()">${esc(n)}</button>`).join("")}</div><div class="grid" style="margin-top:12px">${l.map(card).join("")}</div>${l.length?"":empty("No products found")}`}
+function wl(){const l=S.prods.filter(p=>S.wish.includes(p.id));return `<h2>My <span>Wishlist</span></h2><div class="grid">${l.map(card).join("")}</div>${l.length?"":empty("Your wishlist is empty")}`}
+function detail(){const p=P(S.v.id);if(!p)return empty("Product not found");
+ return `<button class="btn g s" onclick="S.v=null;draw()">← Back</button><div style="margin-top:10px">${p.img?`<img class="big" src="${p.img}">`:`<div class="big ph">🏍️</div>`}</div><h2 style="font-size:21px">${esc(p.name)}</h2><div class="pr" style="font-size:22px">${money(p.price)}</div><div class="wp">Wholesale price: ${money(p.wholesale)}</div><p class="mu">${esc(p.desc)}</p><div class="mu">${esc(p.cat)} · ${avail(p)?Number(p.stock)+" in stock":"Out of stock"}</div>
+ <div class="q" style="margin:14px 0"><button onclick="S.qty=Math.max(1,S.qty-1);draw()">−</button><b>${S.qty}</b><button onclick="S.qty=Math.min(${Number(p.stock)||1},S.qty+1);draw()">+</button></div><div class="sp"><button class="btn" style="flex:1" ${avail(p)?"":"disabled"} onclick="add('${p.id}',S.qty)">Add to Cart</button><button class="btn g" onclick="wish('${p.id}')">${S.wish.includes(p.id)?"❤️":"🤍"}</button></div>`}
+const cartTotal=()=>Object.keys(S.cart).filter(P).reduce((s,i)=>s+S.cart[i]*P(i).price,0);
+function cartV(){const ids=Object.keys(S.cart).filter(P);
+ const rows=ids.map(i=>{const p=P(i);return `<div class="box sp"><div style="flex:1"><div class="pn" style="height:auto">${esc(p.name)}</div><div class="pr">${money(p.price)}</div></div><div class="q"><button onclick="cq('${i}',-1)">−</button><b>${S.cart[i]}</b><button onclick="cq('${i}',1)">+</button></div></div>`}).join("");
+ const t=cartTotal();
+ return `<button class="btn g s" onclick="S.v=null;draw()">← Back</button><h2>My <span>Cart</span></h2>${rows||empty("Your cart is empty")}${ids.length?`<div class="sp"><b>Total</b><b class="pr">${money(t)}</b></div><h2>Delivery <span>Details</span></h2>
+ ${S.user?`<input id="on" placeholder="Name" value="${esc(S.prof.name||S.user.displayName||"")}"><input id="op" placeholder="Mobile number" inputmode="tel" value="${esc(S.prof.phone)}"><textarea id="oa" placeholder="Delivery address">${esc(S.prof.addrs[0]||"")}</textarea>
+ ${S.upi?`<a class="btn" style="display:block;text-align:center;text-decoration:none;margin:8px 0" href="upi://pay?pa=${encodeURIComponent(S.upi)}&pn=MJE%20ENTERPRISE&am=${t}&cu=INR">Pay ${money(t)} with GPay / UPI</a><input id="ou" placeholder="UTR / transaction number after paying">`:""}
+ <button class="btn" style="width:100%;margin-top:6px" onclick="place()">Place Order</button>`:`<div class="box mu">Please sign in to place your order.</div><button class="btn" style="width:100%" onclick="login()">Sign in with Google</button>`}`:""}`}
+G(function cq(i,d){S.cart[i]=(S.cart[i]||0)+d;const p=P(i);if(p&&S.cart[i]>Number(p.stock))S.cart[i]=Number(p.stock);if(S.cart[i]<=0)delete S.cart[i];ls.s("mje_cart",S.cart);draw()});
+G(async function place(){const name=$("#on").value.trim(),phone=$("#op").value.trim(),addr=$("#oa").value.trim();
+ if(!name||phone.replace(/\D/g,"").length<10||!addr)return toast("Enter name, 10-digit mobile & address");
+ const items=Object.keys(S.cart).filter(P).map(i=>({id:i,name:P(i).name,price:Number(P(i).price),qty:S.cart[i]}));
+ try{await addDoc(collection(db,"orders"),{uid:S.user.uid,email:S.user.email||"",t:Date.now(),status:"Pending",name,phone,addr,items,total:cartTotal(),utr:($("#ou")||{}).value||""});
+ S.cart={};ls.s("mje_cart",S.cart);S.prof={name,phone,addrs:[addr,...S.prof.addrs.filter(a=>a!==addr)].slice(0,3)};ls.s("mje_prof",S.prof);S.v=null;S.tab="account";S.asub="orders";toast("Order placed!");draw()}catch(e){toast("Could not place order")}});
+const stc=["Pending","Confirmed","Processing","Shipped","Delivered","Cancelled"];
+function ordCard(o,adm){return `<div class="box"><div class="sp"><b>#${o.id.slice(0,6).toUpperCase()}</b><span class="st">${o.status}</span></div><div class="mu">${new Date(o.t).toLocaleString()}</div>${adm?`<div class="mu">${esc(o.name)} · ${esc(o.phone)}<br>${esc(o.addr)}${o.utr?`<br>UTR: ${esc(o.utr)}`:""}</div>`:""}${o.items.map(i=>`<div class="sp mu"><span>${esc(i.name)} × ${i.qty}</span><span>${money(i.price*i.qty)}</span></div>`).join("")}<div class="sp"><b>Total</b><b class="pr">${money(o.total)}</b></div>
+ ${adm?`<select onchange="setSt('${o.id}',this.value)">${stc.map(s=>`<option ${s===o.status?"selected":""}>${s}</option>`).join("")}</select>${o.status==="Pending"?`<div class="sp"><button class="btn s" style="flex:1" onclick="setSt('${o.id}','Confirmed')">Accept</button><button class="btn s r" style="flex:1" onclick="setSt('${o.id}','Cancelled')">Reject</button></div>`:""}`:""}</div>`}
+G(async function setSt(id,st){try{const o=S.ro.find(x=>x.id===id);if(!o)return;const u={status:st};
+ if(st==="Confirmed"&&!o.ded){for(const i of o.items)if(P(i.id))await updateDoc(doc(db,"prods",i.id),{stock:increment(-i.qty),sold:increment(i.qty)});u.ded=true}
+ await updateDoc(doc(db,"orders",id),u);toast("Order "+st)}catch(e){toast("Update failed")}});
+function account(){if(!S.user)return `<h2>My <span>Account</span></h2><div class="box mu" style="text-align:center;padding:26px">Sign in to see your orders and place new ones.</div><button class="btn" style="width:100%" onclick="login()">Sign in with Google</button>${about()}`;
+ const tabs=[["orders","My Orders"],["profile","Profile"],["about","About"],...(S.admin||!S.ownerSet?[["admin","Admin Panel"]]:[])];
+ return `<h2>My <span>Account</span></h2><div class="cats">${tabs.map(t=>`<button class="chip ${S.asub===t[0]?"on":""}" onclick="S.asub='${t[0]}';draw()">${t[1]}</button>`).join("")}</div><div style="margin-top:10px">${
+ S.asub==="orders"?(S.orders.length?[...S.orders].sort((a,b)=>b.t-a.t).map(o=>ordCard(o,false)).join(""):empty("No orders yet")):
+ S.asub==="profile"?`<div class="mu">${esc(S.user.email)}</div><input id="pn" placeholder="Name" value="${esc(S.prof.name)}"><input id="pp" placeholder="Mobile number" inputmode="tel" value="${esc(S.prof.phone)}"><textarea id="pa" placeholder="Saved addresses (one per line)">${esc(S.prof.addrs.join("\n"))}</textarea><button class="btn" onclick="saveProf()">Save Profile</button> <button class="btn g" onclick="logout()">Sign out</button>`:
+ S.asub==="about"?about():admin()}</div>`}
+const about=()=>`<div class="box"><b>MJE ENTERPRISE</b><p class="mu">Motorcycle &amp; Bike Accessories Wholesale — LED lights, fog lamps, indicators, mirrors, horns and more.</p><b>Contact Us</b><p class="mu">Please contact MJE ENTERPRISE directly for bulk enquiries.</p></div>`;
+G(function saveProf(){S.prof={name:$("#pn").value.trim(),phone:$("#pp").value.trim(),addrs:$("#pa").value.split("\n").map(s=>s.trim()).filter(Boolean)};ls.s("mje_prof",S.prof);toast("Profile saved")});
+function admin(){if(!S.ownerSet)return `<div class="box"><b>First-time setup</b><p class="mu">Make this Google account the owner of MJE ENTERPRISE. Do this only on your own phone, only once.</p><button class="btn" onclick="claim()">I am the Owner</button></div>`;
+ const t=S.at,tb=[["orders","Orders"],["prods","Products"],["cats","Categories"],["set","Settings"]];
+ return `<div class="cats">${tb.map(x=>`<button class="chip ${t===x[0]?"on":""}" onclick="S.at='${x[0]}';S.edit=null;draw()">${x[1]}</button>`).join("")}</div>`+(
+ t==="orders"?(S.ro.length?[...S.ro].sort((a,b)=>b.t-a.t).map(o=>ordCard(o,true)).join(""):empty("No customer orders yet")):
+ t==="set"?`<div class="box"><b>UPI ID (GPay)</b><input id="upi" placeholder="name@okaxis" value="${esc(S.upi)}"><button class="btn" onclick="saveUpi()">Save</button></div>`:
+ t==="cats"?`<div class="sp" style="margin:8px 0"><input id="nc" placeholder="New category name"><button class="btn" onclick="addCat()">Add</button></div>${S.cats.length?S.cats.map(c=>`<div class="box sp"><span>${esc(c.name)}</span><button class="btn s r" onclick="delCat('${c.id}')">Remove</button></div>`).join(""):`<button class="btn" onclick="loadDef()">Load default 8 categories</button>`}`:
+ S.edit?pform():`<button class="btn" style="width:100%;margin:8px 0" onclick="S.edit={};S.img='';draw()">＋ Add New Product</button>${S.prods.map(p=>`<div class="box sp"><div style="flex:1"><b>${esc(p.name)}</b><div class="mu">${money(p.price)} · W ${money(p.wholesale)} · Stock ${Number(p.stock)}${p.out?" · OUT":""}</div></div><button class="btn s g" onclick="editP('${p.id}')">Edit</button></div>`).join("")||empty("No products yet — add your first product")}`)}
+G(async function claim(){try{await setDoc(doc(db,"config","owner"),{uid:S.user.uid,email:S.user.email});toast("You are the owner")}catch(e){toast("Owner already set")}});
+G(async function saveUpi(){await setDoc(doc(db,"config","settings"),{upi:$("#upi").value.trim()});toast("Saved")});
+G(function editP(id){S.edit=P(id);S.img=S.edit.img||"";draw()});
+function pform(){const e=S.edit;return `<div class="box"><b>${e.id?"Edit":"New"} Product</b><div id="pv">${S.img?`<img class="big" style="margin:8px 0" src="${S.img}">`:""}</div><input type="file" id="pf" accept="image/*" onchange="pick(this)">
+ <input id="f_name" placeholder="Product name" value="${esc(e.name)}"><textarea id="f_desc" placeholder="Description">${esc(e.desc)}</textarea><select id="f_cat">${cats().map(c=>`<option ${c.name===e.cat?"selected":""}>${esc(c.name)}</option>`).join("")}</select>
+ <input id="f_price" type="number" placeholder="Retail price ₹" value="${e.price??""}"><input id="f_wh" type="number" placeholder="Wholesale price ₹" value="${e.wholesale??""}"><input id="f_stock" type="number" placeholder="Stock quantity" value="${e.stock??""}">
+ <label class="mu"><input type="checkbox" id="f_out" style="width:auto" ${e.out?"checked":""}> Mark Out of Stock</label><br><label class="mu"><input type="checkbox" id="f_ft" style="width:auto" ${e.featured?"checked":""}> Featured product</label>
+ <div class="sp" style="margin-top:10px"><button class="btn" style="flex:1" onclick="saveP()">Save</button><button class="btn g" onclick="S.edit=null;draw()">Cancel</button>${e.id?`<button class="btn r" onclick="delP('${e.id}')">Delete</button>`:""}</div></div>`}
+G(function pick(inp){const f=inp.files[0];if(!f)return;const im=new Image();im.onload=()=>{const m=700,r=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=im.width*r;c.height=im.height*r;c.getContext("2d").drawImage(im,0,0,c.width,c.height);S.img=c.toDataURL("image/jpeg",.7);$("#pv").innerHTML=`<img class="big" style="margin:8px 0" src="${S.img}">`};im.src=URL.createObjectURL(f)});
+G(async function saveP(){const e=S.edit,d={name:$("#f_name").value.trim(),desc:$("#f_desc").value.trim(),cat:$("#f_cat").value,price:+$("#f_price").value||0,wholesale:+$("#f_wh").value||0,stock:+$("#f_stock").value||0,out:$("#f_out").checked,featured:$("#f_ft").checked,img:S.img};
+ if(!d.name)return toast("Enter product name");
+ try{if(e.id)await updateDoc(doc(db,"prods",e.id),d);else await setDoc(doc(collection(db,"prods")),{...d,t:Date.now(),sold:0});S.edit=null;toast("Product saved");draw()}catch(x){toast("Save failed")}});
+G(async function delP(id){if(confirm("Delete this product?")){await deleteDoc(doc(db,"prods",id));S.edit=null;draw()}});
+G(async function addCat(){const n=$("#nc").value.trim();if(!n)return;if(!S.cats.length)await loadDef();await addDoc(collection(db,"cats"),{name:n,t:Date.now()})});
+G(async function loadDef(){for(let i=0;i<DEF.length;i++)await setDoc(doc(db,"cats","d"+i),{name:DEF[i],t:i})});
+G(async function delCat(id){await deleteDoc(doc(db,"cats",id))});
+window.S=S;window.draw=draw;window.login=login;window.logout=logout;
+function draw(){const a=document.activeElement,fid=a&&a.id;if(fid&&fid!=="sq"&&/^(f_|o|p|n|u)/.test(fid)&&a.tagName!=="SELECT"&&a.type!=="file"&&a.type!=="checkbox"&&a.type!=="submit")return drawLater();
+ const n=Object.values(S.cart).reduce((x,y)=>x+y,0),v=S.v;
+ const body=v?(v.t==="p"?detail():cartV()):({home,shop,wishlist:wl,account}[S.tab])();
+ $("#app").innerHTML=`<header><div class="logo"><b>MJE</b> ENTERPRISE<small>BIKE ACCESSORIES WHOLESALE</small></div><button class="ib" onclick="${S.user?"go('account')":"login()"}">${S.user?"👤":"Sign In"}</button><button class="ib" onclick="S.v={t:'c'};draw()">🛒${n?`<span class="badge">${n}</span>`:""}</button></header>
+ <input placeholder="🔍 Search products" value="${esc(S.q)}" id="sq" ${S.tab==="shop"&&!v?"":'readonly onfocus="S.tab=\'shop\';S.v=null;draw();document.getElementById(\'sq\').focus()"'} oninput="S.q=this.value;draw()">
+ <div>${body}</div><nav>${[["home","🏠","Home"],["shop","🛍️","Shop"],["wishlist","❤️","Wishlist"],["account","👤","Account"]].map(t=>`<button class="${S.tab===t[0]&&!v?"on":""}" onclick="go('${t[0]}')"><i>${t[1]}</i>${t[2]}</button>`).join("")}</nav>`;
+ if(fid==="sq"){const e=$("#sq");if(e){e.focus();e.setSelectionRange(e.value.length,e.value.length)}}}
+let _t;function drawLater(){clearTimeout(_t);_t=setTimeout(()=>{const a=document.activeElement;if(!a||!/^(f_|o|p|n|u)/.test(a.id||""))draw()},1500)}
+draw();
+</script></body></html>
